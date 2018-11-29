@@ -58,6 +58,16 @@
             </el-table-column>
             <el-table-column prop="createTime" label="创建时间" width="220" sortable>
             </el-table-column>
+            <el-table-column label="操作" fixed="right">
+                <template scope="scope" slot-scope="scope">
+                    <el-button type="danger" v-show="scope.row.status == 2" size="small"
+                               @click="handleUpdateStatus(scope.$index, scope.row)">上架
+                    </el-button>
+                    <el-button type="danger" v-show="scope.row.status == 1" size="small"
+                               @click="handleUpdateStatus(scope.$index, scope.row)">下架
+                    </el-button>
+                </template>
+            </el-table-column>
         </el-table>
         <!--工具条-->
         <el-col :span="24" class="toolbar">
@@ -153,7 +163,8 @@
 </template>
 
 <script>
-    import {addGoods, getGoodsPage, getModelPage, getCategory} from '../../api/api';
+    import {addGoods, getGoodsPage, getModelPage, getCategory,
+        onSaleGoods, offSaleGoods} from '../../api/api';
     import enumsUtil from "../../common/js/enumsUtil";
     import categorySelectEval from "./categorySelectEval";
 
@@ -350,7 +361,22 @@
             selectCategory(node, instanceId) {
                 console.log(node);
                 this.addForm.categoryId.id;
-            }
+            },
+            handleUpdateStatus(index, row) {
+                let para = {code: row.code};
+                if (row.status == 1) {
+                    offSaleGoods(para).then((res) => {
+                        row.status = 2;
+                        this.$set(this.orders, index, row);
+                    });
+                }
+                if (row.status == 2) {
+                    onSaleGoods(para).then((res) => {
+                        row.status = 1;
+                        this.$set(this.orders, index, row);
+                    });
+                }
+            },
         },
         mounted() {
             this.getGoods();

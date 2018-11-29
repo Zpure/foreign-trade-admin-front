@@ -209,6 +209,18 @@ export const addGoods = params => {
         data: params
     })
 };
+export const onSaleGoods = params => {
+    return request({
+        url: '/goods/on-sale/' + params.code,
+        method: 'post',
+    })
+};
+export const offSaleGoods = params => {
+    return request({
+        url: '/goods/off-sale/' + params.code,
+        method: 'post',
+    })
+};
 
 
 export const addOrder = params => {
