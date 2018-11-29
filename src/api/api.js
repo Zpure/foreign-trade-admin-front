@@ -291,6 +291,13 @@ export const getDistributionDetail = params => {
         params
     })
 };
+export const getDistributionPage = params => {
+    return request({
+        url: '/order/distribution/query',
+        method: 'get',
+        params
+    })
+};
 export const updateDistributionOrder = params => {
     return request({
         url: '/order/distribution/update',

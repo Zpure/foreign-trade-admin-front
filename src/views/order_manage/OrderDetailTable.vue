@@ -34,7 +34,79 @@
             <div class="text item">
                 已备货数: {{orderDetail.totalDisNum}}
             </div>
+            <div class="text item">
+                <el-button type="danger" size="small" @click="handleDisDetail()">备货
+                </el-button>
+            </div>
         </el-card>
+
+        <el-dialog
+                title="备货"
+                :visible.sync="dialogDisVisible" width="width">
+            <el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
+                <el-form :inline="true" :model="orderDisDetailFilters" ref="orderDisDetailFilters">
+                    <el-form-item prop="supplierCode">
+                        <el-input v-model="orderDisDetailFilters.supplierCode" placeholder="供应商编码"></el-input>
+                    </el-form-item>
+                    <el-form-item prop="supplierName">
+                        <el-input v-model="orderDisDetailFilters.supplierName" placeholder="供应商名称"></el-input>
+                    </el-form-item>
+                    <el-form-item prop="goodsCode">
+                        <el-input v-model="orderDisDetailFilters.goodsCode" placeholder="商品编码"></el-input>
+                    </el-form-item>
+                    <el-form-item prop="goodsName">
+                        <el-input v-model="orderDisDetailFilters.goodsName" placeholder="商品名称"></el-input>
+                    </el-form-item>
+                    <el-form-item prop="brandName">
+                        <el-input v-model="orderDisDetailFilters.brandName" placeholder="品牌名称"></el-input>
+                    </el-form-item>
+                    <el-form-item prop="modelName">
+                        <el-input v-model="orderDisDetailFilters.modelName" placeholder="型号名称"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button @click="resetForm('orderDisDetailFilters')">重置</el-button>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" v-on:click="getDisDetailPage">查询</el-button>
+                    </el-form-item>
+                </el-form>
+            </el-col>
+            <el-table :data="orderDisDetailPage" highlight-current-row v-loading="listLoading" style="width: 100%;">
+                <el-table-column prop="supplierCode" label="供应商编码" width="180">
+                </el-table-column>
+                <el-table-column prop="supplierName" label="供应商名称" width="180">
+                </el-table-column>
+                <el-table-column prop="goodsCode" label="商品编码" width="180">
+                </el-table-column>
+                <el-table-column prop="goodsName" label="商品名称" width="180">
+                </el-table-column>
+                <el-table-column prop="initDisNum" label="已分配数量" width="180">
+                </el-table-column>
+                <el-table-column label="已拿货数量" width="200">
+                    <template scope="scope">
+                                <span v-if="true" class="cell-edit-input">
+                                    <el-input-number v-model="scope.row.disNum"
+                                                     precision="0"
+                                                     :step="1"
+                                                     :min="1"
+                                                     :max="10000"></el-input-number>
+                                </span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="操作" width="100" fixed="left">
+                    <template scope="scope" slot-scope="scope">
+                        <el-button type="danger" size="small" @click="handleDistributionUpdate(scope.$index, scope.row)">保存
+                        </el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <!--工具条-->
+            <el-col :span="24" class="toolbar">
+                <el-pagination layout="total, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-size="20"
+                               :total="detailDisTotal" style="float:right;">
+                </el-pagination>
+            </el-col>
+        </el-dialog>
 
         <el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
             <el-form :inline="true" :model="orderDetailFilters" ref="orderDetailFilters">
@@ -74,7 +146,7 @@
                   :expand-row-keys="entexpands"
                   :row-class-name="orderDetailRowClassName"
                   style="width: 100%;">
-            <el-table-column type="expand">
+            <!--<el-table-column type="expand">
                 <template slot-scope="props">
                     <el-table :data="orderDisDetails" highlight-current-row>
                         <el-table-column prop="supplierCode" label="供应商编码" width="180">
@@ -96,13 +168,14 @@
                         </el-table-column>
                         <el-table-column label="操作" width="100" fixed="left">
                             <template scope="scope" slot-scope="scope">
-                                <el-button type="danger" size="small" @click="handleDistributionUpdate(scope.$index, scope.row)">保存
+                                <el-button type="danger" size="small"
+                                           @click="handleDistributionUpdate(scope.$index, scope.row)">保存
                                 </el-button>
                             </template>
                         </el-table-column>
                     </el-table>
                 </template>
-            </el-table-column>
+            </el-table-column>-->
 
             <el-table-column prop="goodsCode" label="商品编码" width="120">
             </el-table-column>
@@ -172,25 +245,27 @@
                         </el-option>
                     </el-select>
                 </el-form-item>
-                <el-input-number v-model="orderDistributionNum"
-                                 :precision="0"
-                                 :step="1"
-                                 :min="1"
-                                 :max="10000"></el-input-number>
                 <el-table :data="distributionForm.detailList">
                     <el-table-column prop="supplierCode" label="供应商编码" width="120">
                     </el-table-column>
                     <el-table-column prop="supplierName" label="供应商名称" width="120">
                     </el-table-column>
-                    <el-table-column prop="num" label="供货数量" width="100">
+                    <el-table-column label="供货数量" width="180">
+                        <template scope="scope">
+                                <span v-if="true" class="cell-edit-input">
+                                    <el-input-number v-model="scope.row.num"
+                                                     size="small"
+                                                     precision="0"
+                                                     :step="1"
+                                                     :min="1"
+                                                     :max="10000"></el-input-number>
+                                </span>
+                        </template>
                     </el-table-column>
                     <el-table-column label="操作" width="200" fixed="right">
                         <template scope="scope" slot-scope="scope">
                             <el-button type="danger" size="small"
                                        @click="removeDistributionDetail(scope.$index, distributionForm.detailList)">移除
-                            </el-button>
-                            <el-button type="danger" size="small"
-                                       @click="changeDistributionDetailNum(scope.$index, scope.row)">改量
                             </el-button>
                         </template>
                     </el-table-column>
@@ -202,7 +277,6 @@
                 </el-button>
             </div>
         </el-dialog>
-
 
     </section>
 </template>
@@ -222,7 +296,14 @@
 </style>
 
 <script>
-    import {distributionOrder, getDistributionDetail, getOrderDetail, getSupplierPage, updateDistributionOrder} from '../../api/api';
+    import {
+        distributionOrder,
+        getDistributionDetail,
+        getDistributionPage,
+        getOrderDetail,
+        getSupplierPage,
+        updateDistributionOrder
+    } from '../../api/api';
     import enumsUtil from "../../common/js/enumsUtil";
 
     export default {
@@ -249,6 +330,14 @@
                     brandName: '',
                     modelName: '',
                 },
+                orderDisDetailFilters: {
+                    supplierCode: '',
+                    supplierName: '',
+                    goodsCode: '',
+                    goodsName: '',
+                    brandName: '',
+                    modelName: '',
+                },
                 detailFilters: {
                     orderCode: '',
                     goodsCode: '',
@@ -267,6 +356,12 @@
                 listLoading: false,
                 sels: [],//列表选中列
 
+                dialogDisVisible: false,
+                orderDisDetailPage: [],
+                detailDisTotal: 0,
+                detailDisPage: 1,
+                listDisLoading: false,
+
                 distributionFormVisible: false,//新增界面是否显示
                 distributionLoading: false,
                 distributionFormRules: {
@@ -282,9 +377,6 @@
                     code: '',
                     name: '',
                 },
-
-
-                orderDistributionNum: 0,
 
                 showImgList: [],
                 dialogImgVisible: false,
@@ -338,6 +430,26 @@
                 }).finally(() => {
                     this.listLoading = false;
                 });
+            },
+            getDisDetailPage() {
+                let para = this.orderDisDetailFilters;
+                para.pageNo = this.page;
+                para.orderCode = this.orderCode;
+                this.listDisLoading = true;
+                getDistributionPage(para).then((res) => {
+                    this.detailDisTotal = res.data.totalNum;
+                    this.orderDisDetailPage = res.data.record;
+                }).finally(() => {
+                    this.listDisLoading = false;
+                });
+            },
+            handleCurrentChange(val) {
+                this.page = val;
+                this.getDisDetailPage();
+            },
+            handleDisDetail() {
+                this.dialogDisVisible = true;
+                this.getDisDetailPage();
             },
             //配单
             distributionSubmit: function () {
@@ -402,10 +514,6 @@
             removeDistributionDetail(index, rows) {
                 rows.splice(index, 1);
             },
-            changeDistributionDetailNum(index, row) {
-                row.num = this.orderDistributionNum;
-                this.$set(this.distributionForm.detailList, index, row);
-            },
 
             supplierSelectSearch(query) {
                 if (query !== '') {
@@ -452,7 +560,7 @@
                 }
                 updateDistributionOrder(para).then((res) => {
                     // this.getOrderDetail();
-                    this.getDisDetail();
+                    this.getOrderDetail();
                     this.$message('保存成功');
                 });
             },
@@ -463,6 +571,7 @@
         mounted() {
             this.orderCode = this.$route.params.code;
             this.getOrderDetail();
+            // this.getDisDetailPage();
         }
     }
 
