@@ -1,4 +1,4 @@
 module.exports = {
     NODE_ENV: '"production"',
-    BASE_API: '"http://admin.zcpure.com/api/admin"'
+    BASE_API: '"/api/admin"'
 }
